@@ -1,0 +1,26 @@
+<h2>Color Token Manager</h2>
+<p>* Theme colors are recognized start with [themeName]</p>
+<button id="generate">Generate</button>
+<p><button onclick="quit()">Close</button></p>
+<script>
+
+document.getElementById('generate').onclick = () => {
+  console.log("clicked!")
+  parent.postMessage({ pluginMessage: { type: 'generate' } }, '*')
+}
+
+function quit() {
+  parent.postMessage({ pluginMessage: { quit: true } }, '*');
+}
+
+// document.getElementById('create').onclick = () => {
+//   const textbox = document.getElementById('count');
+//   const count = parseInt(textbox.value, 10);
+//   parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*')
+// }
+
+// document.getElementById('cancel').onclick = () => {
+//   parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+// }
+
+</script>
