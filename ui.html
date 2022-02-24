@@ -1,12 +1,110 @@
-<h2>Color Token Manager</h2>
-<p>* Theme colors are recognized start with [themeName]</p>
-<button id="generate">Generate</button>
-<p><button onclick="quit()">Close</button></p>
+
+
+<!-- Standard link tag-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css">
+<style>
+  body {
+    margin: 16;
+  }
+  p {
+    font-size: 12;
+  }
+  .flex-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 16 0 16 0;
+  }
+  .row {
+    margin-right: 16;
+  }
+</style>
+<body>
+  <div class="onboarding-tip" style="background-color:antiquewhite;">
+    <div class="icon icon--alert"></div>
+    <div class="onboarding-tip__msg">使用 Material 3 的 token 逻辑</div>
+  </div>
+  <div class="flex-row">
+    <div class="label">参考主题:</div>
+    <div style="width: 500">
+      <select id="theme-select" class="select-menu" onchange="defaultThemeChanged()"></select>
+    </div>
+  </div>
+  <div class="flex-row">
+    <button class='button button--primary row' id="generate">Generate</button>
+    <button class='button button--secondary' onclick="quit()">Close</button>
+    <!-- <div class="icon-button" id="refresh" onclick="refresh()">
+      <div class="icon icon--swap"></div>
+    </div> -->
+  </div>
+  <div class="flex-row" >
+    <div class="row" id="sys-tokens"></div>
+    <div id="ref-tokens"></div>
+  </div>
+  <!-- <p id="token-links">default</p> -->
+</body>
+
 <script>
 
 document.getElementById('generate').onclick = () => {
-  console.log("clicked!")
   parent.postMessage({ pluginMessage: { type: 'generate' } }, '*')
+}
+let themeSelect = document.getElementById('theme-select')
+// const tokenList = document.getElementById('token-links')
+
+onmessage = (event) => {
+  const msg = event.data.pluginMessage
+  if (msg.themeNameList != null){
+    updateSelectionList(event.data.pluginMessage.themeNameList)
+  }
+  if (msg.sysLinks != null){
+    updateTokenLinks(msg.sysLinks)
+    // tokenList.textContent = JSON.stringify(msg.sysLinks)
+  }
+}
+
+function updateSelectionList(themeNameList){
+  themeSelect.innerHTML=""
+  themeNameList.forEach((name, i) => {
+    let opt = document.createElement('option')
+    opt.value = i;
+    opt.innerHTML = name;
+    themeSelect.appendChild(opt)
+  });
+}
+
+function defaultThemeChanged(){
+  themeSelect = document.getElementById('theme-select')
+  const defaultThemeName = themeSelect.selectedOptions[0].innerHTML
+  parent.postMessage({ pluginMessage: { type: 'default-changed', defaultThemeName:defaultThemeName } }, '*')
+}
+
+function updateTokenLinks(sysLinks){
+  const sysTokenList = document.getElementById('sys-tokens')
+  const refTokenList = document.getElementById('ref-tokens')
+  sysLinks.forEach(sysLink => {
+    sysLink.linkPaints.forEach(paint => {
+      if (paint.isDynamic){
+        console.log("isDynamic")
+        const newSysToken = document.createElement('div')
+        newSysToken.className = "label"
+        newSysToken.innerHTML = sysLink.sysName
+        sysTokenList.appendChild(newSysToken)
+
+        const newRefToken = document.createElement('div')
+        newRefToken.className = "label"
+        newRefToken.innerHTML = paint.refName
+        refTokenList.appendChild(newRefToken)
+      }
+    })
+    
+  })
+}
+
+
+function refresh(){
+  parent.postMessage({ pluginMessage: { type: 'refresh' } }, '*')
+  
 }
 
 function quit() {
@@ -23,4 +121,9 @@ function quit() {
 //   parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
 // }
 
+</script>
+<script src="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/iife/figma-plugin-ds.js"></script>
+<script>
+    selectMenu.init(); //initiates the select menu component
+    disclosure.init(); //initiates the disclosure component
 </script>
