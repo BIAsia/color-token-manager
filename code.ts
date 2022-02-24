@@ -7,7 +7,7 @@
 
 // This shows the HTML page in "ui.html".
 let allPaintStyles = figma.getLocalPaintStyles();
-let defaultThemeName = "default"
+// let defaultThemeName = "default"
 
 interface themeStyles {
   name: string;
@@ -33,8 +33,9 @@ let sysLinks: sysLink[] = [];
 figma.showUI(__html__);
 figma.ui.resize(300, 500)
 GetAllThemes()
+let defaultThemeName = themeNameList[0]
 GetAllLinks()
-figma.ui.postMessage({ themeNameList:themeNameList, themeList: themeList })
+figma.ui.postMessage({ themeNameList:themeNameList, themeList: themeList, sysLinks: sysLinks })
 // Calls to "parent.postMessage" from within the HTML page will trigger this
 // callback. The callback will be passed the "pluginMessage" property of the
 // posted message.
@@ -46,8 +47,10 @@ figma.ui.onmessage = msg => {
     allPaintStyles = figma.getLocalPaintStyles();
     GetAllThemes()
     GetAllLinks()
-    GenerateTokens()
-    figma.ui.postMessage({ themeNameList:themeNameList, themeList: themeList })
+    const num = GenerateTokens()
+    const skip = themeNameList.length - num
+    figma.ui.postMessage({ themeNameList:themeNameList, themeList: themeList, sysLinks: sysLinks })
+    figma.notify('generated sys tokens for ' + num + ' themes, ' + skip + ' skipped');
   }
 
   if (msg.type === 'default-changed') {
@@ -149,6 +152,7 @@ function ComparePaints(paintA:Paint, paintB:Paint){
 }
 
 function GenerateTokens(){
+  let num = 0;
   themeNameList.forEach(themeName => {
     const theme = themeList.find(theme => theme.name == themeName)
     // move sys folder
@@ -175,6 +179,8 @@ function GenerateTokens(){
         sysStyle.paints = newPaints;
         
       })
+      num ++;
     }
   })
+  return num;
 }

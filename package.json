@@ -1,5 +1,5 @@
 {
-  "name": "color-token-manager",
+  "name": "theme-color-token",
   "version": "0.3.0",
   "description": "Figma plugin for creating linked tokens referring to an exist palette",
   "main": "code.js",
