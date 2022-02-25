@@ -14,3 +14,5 @@ Use color token structure of Material 3:
     - on-primary
     - ...
 - [...]
+
+![how to use](./intro.png)
