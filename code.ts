@@ -25,6 +25,11 @@ interface sysLink {
   linkPaints: linkPaint[]
 }
 
+interface colorInfo {
+  name: string;
+  color: RGB;
+}
+
 let themeList: themeStyles[] = [];
 let themeNameList: string[] = [];
 let sysLinks: sysLink[] = [];
@@ -67,6 +72,24 @@ figma.ui.onmessage = msg => {
   //   GetAllLinks()
   //   figma.ui.postMessage({ themeNameList:themeNameList, themeList: themeList })
   // }
+
+
+  if (msg.type === 'import-color-styles'){
+    const colorStyles:colorInfo[] = [];
+    const obj = JSON.parse(msg.colorTexts, function(key, value){
+      const newColorStyle = {
+        name: key,
+        color: hexToRgb(value)
+      }
+      if (newColorStyle.name && newColorStyle.color){
+        colorStyles.push(newColorStyle)
+      }
+    })
+    console.log(colorStyles)
+    
+    colorStyles.forEach(color => CreateColorStyle(color))
+    figma.notify(colorStyles.length + " colors have been added successfully!")
+  }
 
   if (msg.quit) figma.closePlugin();
 
@@ -184,4 +207,42 @@ function GenerateTokens(){
     }
   })
   return num;
+}
+
+function CreateColorStyle(colorStyle:colorInfo){
+  const style = figma.createPaintStyle();
+  style.name = colorStyle.name;
+  const paints:Paint[] = [{type: "SOLID", color: colorStyle.color}];
+  style.paints = paints;
+}
+
+
+// function CreateColorStyle(colorText){
+//   console.log(colorText)
+//   const colorInfo = colorText;
+//   const style = figma.createPaintStyle();
+//   style.name = colorInfo.name;
+//   const paints = [];
+//   colorInfo.colors.forEach(color => {
+//       if (color.startsWith('#')){
+//           // is HEX
+//           const paint:Paint = {
+//               type: "SOLID",
+//               color: hexToRgb(color)
+//           }
+//           paints.push(paint)
+//       } else {
+//         figma.notify("only support HEX value")
+//       }
+//   })
+// }
+
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16)/255,
+    g: parseInt(result[2], 16)/255,
+    b: parseInt(result[3], 16)/255
+  } : null;
 }
