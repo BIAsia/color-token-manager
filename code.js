@@ -102,6 +102,8 @@ function GetAllLinks() {
 function ComparePaints(paintA, paintB) {
     if (paintA == null || paintB == null)
         return false;
+    if (paintA.opacity != paintB.opacity)
+        return false;
     if (paintA.type == "SOLID" && paintB.type == "SOLID") {
         if (JSON.stringify(paintA.color) == JSON.stringify(paintB.color))
             return true;
